@@ -14,7 +14,7 @@
 }
 \usage{
 fitSCI(x, ...)
-\method{fitSCI}{default}(x, first.mon, time.scale, distr, p0, 
+\method{fitSCI}{default}(x, first.mon, time.scale, distr, per.year=12, p0, 
        p0.center.mass=FALSE, scaling=c("no","max","sd"),mledist.par =  list(),
        start.fun = dist.start, start.fun.fix = FALSE, warn = TRUE, ...)
 
@@ -27,11 +27,14 @@ transformSCI(x, ...)
     \code{numeric} vector, representing a monthly univariate time series.
   }
   \item{first.mon}{
-    value in 1:12 indicating the month of the first element of x
+    value in 1:12 indicating the index (month, week, day) of the first element of x
   }
   \item{time.scale}{
     The time scale (\code{integer}) of  the SCI calculation. The time
     scale is the window length of an backward looking running mean.
+  }
+  \item{per.year}{
+    The number (\code{integer}) of repeating periods per year. For monthly evaluation, per.year is 12. For daily, per.year should be 365. Defaults to Monthly (12).
   }
   \item{distr}{
     A character string \code{"name"} naming a distribution for which the

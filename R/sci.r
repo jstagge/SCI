@@ -1,13 +1,13 @@
-.mon.vect <- function(first.mon,n){
+.mon.vect <- function(first.mon,n,per.year){
 ### produce replicated sequences from 1:12 with the condition
 ### that the first value has the value of 'first.mon'
 ###
 ### first.mon : value in 1:12
 ### n : length of the resulting series
-    if(!(first.mon%in%(1:12)))
-        stop("'first.mon' should be in 1:12")
-    mm <- (1:12)+(first.mon-1)
-    mm[mm>12] <- mm[mm>12] - 12
+    if(!(first.mon%in%(1:per.year)))
+        stop("'first.mon' should be in 1:per.year")
+    mm <- (1:per.year)+(first.mon-1)
+    mm[mm>per.year] <- mm[mm>per.year] - per.year
     rep(mm,length.out=n)
 }
 
@@ -18,6 +18,7 @@ fitSCI.default <- function(x,
                            first.mon,
                            time.scale,
                            distr,
+                           per.year=12,
                            p0,
                            p0.center.mass=FALSE, ## use Weibull plotting position function for p0 estimation
                            scaling=c("no","max","sd"),
@@ -29,6 +30,7 @@ fitSCI.default <- function(x,
         stop("time.scale must be > 1")
     if(time.scale%%1!=0)
         stop("time.scale must be a integer number (1, 2, ...)")
+
     x <- as.numeric(x)   
     scaling <- match.arg(scaling)
     scale.val <- switch(scaling,
@@ -38,16 +40,16 @@ fitSCI.default <- function(x,
     x <- x/scale.val   
     nn <- length(x)
     time.index <- 1:nn
-    mmon <- .mon.vect(first.mon=first.mon,n=nn)
+    mmon <- .mon.vect(first.mon=first.mon,n=nn, per.year=per.year)
     ## 1. backward moving average
     if(time.scale>1){
         ffilt <- rep(1,time.scale)/time.scale
         x <- as.numeric(filter(x,filter=ffilt,method="convolution",sides=1))
     }
     ## 2. find distribution parameter for each month
-    x.fit <- vector("list", 12)
-    names(x.fit) <- paste("M",1:12,sep="")
-    x.fit.monitor <- rep(0,12)
+    x.fit <- vector("list", per.year)
+    names(x.fit) <- paste("M",1:per.year,sep="")
+    x.fit.monitor <- rep(0,per.year)
     names(x.fit.monitor) <- names(x.fit)
     empty.fit <- try(start.fun(NA,distr),silent=TRUE)
     if(class(empty.fit)=="try-error"){
@@ -60,7 +62,7 @@ fitSCI.default <- function(x,
         empty.fit <- c(empty.fit,P0=NA)
     }
     mledist.par$distr <- distr
-    for(mm in 1:12){
+    for(mm in 1:per.year){
         mledist.par$data <- x[mmon==mm] ## select month
         mledist.par$data <- mledist.par$data[is.finite(mledist.par$data)]
         if(length(mledist.par$data)==0){
@@ -143,6 +145,7 @@ fitSCI.default <- function(x,
                dist.para.flag=x.fit.monitor,
                time.scale=time.scale,
                distr=distr,
+               per.year=per.year,
                p0=p0,
                p0.center.mass=p0.center.mass,
                scaling=scale.val,
@@ -159,7 +162,8 @@ transformSCI.default <- function(x,first.mon,obj,sci.limit=Inf,warn=TRUE,...){
     x <- x/obj$scaling
     nn <- length(x)
     time.index <- 1:nn
-    mmon <- .mon.vect(first.mon=first.mon,n=nn)
+    per.year <- obj$per.year
+    mmon <- .mon.vect(first.mon=first.mon,n=nn, per.year=per.year)
     ## 1. backward moving average
     time.scale <- obj$time.scale
     if(time.scale>1){
@@ -188,7 +192,7 @@ transformSCI.default <- function(x,first.mon,obj,sci.limit=Inf,warn=TRUE,...){
     } else {
         distpar <- obj$dist.para
     }
-    for(mm in 1:12){
+    for(mm in 1:per.year){
         xm <- x[mmon==mm]
         if(any(is.na(distpar[,mm]))){
             xm[] <- NA
