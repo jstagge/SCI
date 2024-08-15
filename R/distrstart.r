@@ -1,12 +1,12 @@
+#' Lmoment fitting function
+#'
+#' @description Estimates parameters of distributions using L-moments
+#' @param x Data vector.
+#' @param A character string "name" naming a distribution for which the corresponding density function ('dname'), the corresponding distribution function ('pname') and the quantile function ('qname') must be defined (see for example 'GammaDist'
+#' @return An Lmoment fit.
+#' @export
 lmom.start <- function(x,distr=c("gamma","genlog","gev","gumbel",
                              "lnorm","norm","pe3","weibull"),...){
-### estimates parameters of distributions using L-moments
-###
-### x : data vector
-### distr : A character string "name" naming a distribution for which
-### the corresponding density function ('dname'), the
-### corresponding distribution function ('pname') and the
-### quantile function ('qname') must be defined (see for example 'GammaDist'
     distr <- match.arg(distr)
     x.lmom <- try(lmom.ub(x),TRUE)
     if(distr == "gamma"){
@@ -94,15 +94,15 @@ lmom.start <- function(x,distr=c("gamma","genlog","gev","gumbel",
 }
 
 
+#' L-moment fitting
+#'
+#' @description Estimates parameters of distributions using l-moments
+#' @param x Data vector.
+#' @param A character string "name" naming a distribution for which the corresponding density function ('dname'), the corresponding distribution function ('pname') and the quantile function ('qname') must be defined (see for example 'GammaDist'
+#' @return An Lmoment fit.
+#' @export
 mom.start <- function(x,distr=c("gamma","gumbel","logis","lnorm","norm",
                             "weibull"),...){
-### estimates parameters of distributions using moments
-###
-### x : data vector
-### distr : A character string "name" naming a distribution for which
-### the corresponding density function ('dname'), the
-### corresponding distribution function ('pname') and the
-### quantile function ('qname') must be defined (see for example 'GammaDist'
     distr <- match.arg(distr)
     if(distr %in% c("norm","lnorm","gamma","logis")){
         ppar <- try(fitdistrplus::mmedist(x,distr),TRUE)
@@ -147,18 +147,14 @@ mom.start <- function(x,distr=c("gamma","gumbel","logis","lnorm","norm",
 }
 
 
-
+#' L-moment wrapper
+#'
+#' @description Estimates starting values for distributions. First lmom.start is called. In case of failure of lmom.start, an attempt is undertaken to use mom.start
+#' @param x Data vector.
+#' @param A character string "name" naming a distribution for which the corresponding density function ('dname'), the corresponding distribution function ('pname') and the quantile function ('qname') must be defined (see for example 'GammaDist'
+#' @return An Lmoment fit.
+#' @export
 dist.start <- function(x,distr,...){
-### estimates starting values for distributions
-###
-### first 'lmom.start' is called. In case of failure of 'lmom.start'
-### an attempt is undertaken to use 'mom.start'
-###
-### x : data vector
-### distr : A character string "name" naming a distribution for which
-### the corresponding density function ('dname'), the
-### corresponding distribution function ('pname') and the
-### quantile function ('qname') must be defined (see for example 'GammaDist'
     par1 <- try(suppressWarnings(lmom.start(x=x,distr=distr,...)),silent=TRUE)
     if(class(par1)!="try-error"&all(is.finite(unlist(par1)))){
         return(par1)
