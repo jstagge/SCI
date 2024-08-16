@@ -54,7 +54,7 @@ pre_process_daily <- function(x){
     ### Add in additional time columns
     x <- x %>%
       mutate(year = year(date), month = month(date), day = day(date), jdate = yday(date)) %>%
-      select(date, year, month, day, jdate, value)
+      dplyr::select(date, year, month, day, jdate, value)
 
   return(x)
 }
