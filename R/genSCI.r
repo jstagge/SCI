@@ -1,7 +1,7 @@
 #' Transform SCI
 #'
 #' @param x Fill in
-#' @param window Fill in 
+#' @param window Fill in
 #' @return An Lmoment fit.
 #' @export
 transformSCI <- function(fit, new_ts=NA, p0.center.mass=FALSE, sci.limit=Inf, ci = 0.95, ci_method = "mvn", ci_n = 200){
@@ -71,7 +71,7 @@ transformSCI <- function(fit, new_ts=NA, p0.center.mass=FALSE, sci.limit=Inf, ci
 #' Transform SCI for MLE
 #'
 #' @param x Fill in
-#' @param window Fill in 
+#' @param window Fill in
 #' @return An Lmoment fit.
 #' @export
 transform_mle <- function(fit, new_ts, p0.center.mass, ci = ci, ci_method = ci_method, ci_n=ci_n){
@@ -134,7 +134,7 @@ transform_mle <- function(fit, new_ts, p0.center.mass, ci = ci, ci_method = ci_m
 #' Zero handling function for MLE
 #'
 #' @param x Fill in
-#' @param window Fill in 
+#' @param window Fill in
 #' @return An Lmoment fit.
 #' @export
 zero_mle <- function(sci_percentile, roll_mean, nn, n_zero, p0.center.mass){
@@ -162,7 +162,7 @@ zero_mle <- function(sci_percentile, roll_mean, nn, n_zero, p0.center.mass){
 #' Confidence Intervals for MLE
 #'
 #' @param x Fill in
-#' @param window Fill in 
+#' @param window Fill in
 #' @return An Lmoment fit.
 #' @export
 mle_ci <- function(j, fit, x_df, ci_n, ci, ci_method){
@@ -220,5 +220,3 @@ mle_ci <- function(j, fit, x_df, ci_n, ci, ci_method){
 
 	return(x_draw)
 }
-
-
