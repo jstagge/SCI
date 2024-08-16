@@ -4,7 +4,7 @@
 \alias{sci_mle}
 \title{Wrapper for MLE fit}
 \usage{
-sci_mle(x_ts, resolution, distr, p0, warn, start.fun.fix, ref_years)
+sci_mle(x_ts, resolution, distr, p0, warn, start.fun, start.fun.fix, ref_years)
 }
 \arguments{
 \item{x}{Fill in}

@@ -71,7 +71,9 @@ gof_sci <- function(fit, p0.center.mass=FALSE, sci.limit=Inf){
   gof_df$adtest <- as.character(gof_df$adtest)
 
 
-  results_list <- list(gof = gof_df, sci_df = sci_check_df, class = "sci_gof")
+  results_list <- list(gof = gof_df, sci_df = sci_check_df)
+  attr(results_list, "class") <- "sci_gof"
+  return(results_list)
 
 }
 

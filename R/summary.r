@@ -1,11 +1,11 @@
 #' Summary function for sci_fit class
 #'
 #' @param x Fill in
-#' @param window Fill in 
+#' @param window Fill in
 #' @return An Lmoment fit.
 #' @method summary sci_fit
 #' @export
-summary.sci_fit <- function(x, suppress = FALSE){
+summary.sci_fit <- function(x){
 
   x_res <- x$roll_mean$resolution
 
@@ -31,11 +31,72 @@ summary.sci_fit <- function(x, suppress = FALSE){
     bind_cols(as.data.frame(t(sd_mat))) %>%
     mutate(aic = aic_mat, monitor = x$monitor)
 
-  if(suppress == FALSE){
+  return(invisible(summary_df))
+}
+
+
+#' Print function for sci_fit class
+#'
+#' @param x Fill in
+#' @param window Fill in
+#' @return An Lmoment fit.
+#' @method summary sci_fit
+#' @export
+print.sci_fit <- function(x){
+
+  summary_df <- summary(x)
+
   message(paste0("Parameter estimates for ", x$distr, " distribution"))
   #message("\n")
-  print(summary_df)
-  }
+  return(print(summary_df))
+}
 
-  return(summary_df)
+
+
+
+#' Print function for sci_gof class
+#'
+#' @param x Fill in
+#' @param window Fill in
+#' @return An Lmoment fit.
+#' @method summary sci_fit
+#' @export
+print.sci_gof <- function(x){
+  internal <- x$gof
+  return(print(internal))
+}
+
+
+
+
+#' Summary function for sci_gof class
+#'
+#' @param x Fill in
+#' @param window Fill in
+#' @return An Lmoment fit.
+#' @method summary sci_fit
+#' @export
+summary.sci_gof <- function(x){
+
+  message(paste0("Mean AIC"))
+  message(round(mean(x$gof$aic, na.rm=TRUE), 2))
+  message(paste0())
+
+  message(paste0("Mean BIC"))
+  message(round(mean(x$gof$bic, na.rm=TRUE), 2))
+  message(paste0())
+
+
+  message(paste0("Proportion rejected by Shapiro-Wilk Normality Test (alpha = 0.05)"))
+  message(round(mean(x$gof$sw_p <= 0.05, na.rm=TRUE), 4))
+  message(paste0())
+
+  message(paste0("Proportion rejected by Cramer-Von Mises Test (alpha = 0.05)"))
+  message(round(mean(x$gof$cvmtest == "rejected", na.rm=TRUE), 4))
+  message(paste0())
+
+  message(paste0("Proportion rejected by Anderson-Darling Test (alpha = 0.05)"))
+  message(round(mean(x$gof$adtest == "rejected", na.rm=TRUE), 4))
+
+  return(invisible(x$gof))
 }

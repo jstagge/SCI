@@ -4,7 +4,16 @@
 \alias{sci_mle_j}
 \title{MLE fit for a single day or month j}
 \usage{
-sci_mle_j(j, x_ts, distr, x_res, p0, warn = TRUE, start.fun.fix = FALSE)
+sci_mle_j(
+  j,
+  x_ts,
+  distr,
+  x_res,
+  p0,
+  warn = TRUE,
+  start.fun = start.fun,
+  start.fun.fix = FALSE
+)
 }
 \arguments{
 \item{x}{Fill in}

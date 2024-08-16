@@ -4,7 +4,21 @@
 \alias{fitSCI}
 \title{Fit SCI}
 \usage{
-fitSCI(x, ...)
+fitSCI(
+  x,
+  window,
+  distr,
+  method = c("mle", "lmom", "spline", "ecdf"),
+  ref_years = c(-Inf, Inf),
+  gof = TRUE,
+  bimodal_test = FALSE,
+  p0,
+  max_na_prop = 0.1,
+  scaling = c("no", "max", "sd"),
+  start.fun = dist.start,
+  start.fun.fix = FALSE,
+  warn = TRUE
+)
 }
 \arguments{
 \item{x}{Fill in}

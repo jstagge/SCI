@@ -15,7 +15,8 @@ fitSCI <- function(x,
                              max_na_prop = 0.1,
                              scaling=c("no","max","sd"),
                              start.fun=dist.start,
-                             start.fun.fix=FALSE
+                             start.fun.fix=FALSE,
+                             warn = TRUE
   ){
 
     if(sum(class(x) %in% "sci_ts") == 0){
@@ -65,7 +66,7 @@ fitSCI <- function(x,
      ### Choose fit based on method
      ##############################################
      if (method == "mle"){
-       fit_result <- sci_mle(x_df, resolution = x_res, distr = distr, p0 = p0, warn = warn, start.fun.fix = start.fun.fix, ref_years = ref_years)
+       fit_result <- sci_mle(x_df, resolution = x_res, distr = distr, p0 = p0, warn = warn, start.fun = start.fun, start.fun.fix = start.fun.fix, ref_years = ref_years)
     } else if (method == "lmom"){
        #fit_result <- sci_lmom(x_df, x_res, distr)
        stop("ecdf not yet implemented")
@@ -99,7 +100,9 @@ fitSCI <- function(x,
 #' @param window Fill in
 #' @return An Lmoment fit.
 #' @export
-sci_mle <- function(x_ts, resolution, distr, p0, warn, start.fun.fix, ref_years){
+sci_mle <- function(x_ts, resolution, distr, p0, warn, start.fun, start.fun.fix, ref_years){
+
+  x_res <- resolution
 
   require(fitdistrplus)
 
@@ -109,7 +112,7 @@ sci_mle <- function(x_ts, resolution, distr, p0, warn, start.fun.fix, ref_years)
     timestep_list <- 1:12
   }
 
-  x_fit <- sapply(timestep_list, sci_mle_j, x_ts = x_ts, x_res = x_res, distr = distr , p0 = p0, warn = warn, start.fun.fix = start.fun.fix)
+  x_fit <- sapply(timestep_list, sci_mle_j, x_ts = x_ts, x_res = x_res, distr = distr , p0 = p0, warn = warn, start.fun = start.fun, start.fun.fix = start.fun.fix)
 
   ### Create a fit object
   fit_result <- sci_fit(fit = x_fit[1,], roll_mean = NA, nn = unlist(x_fit[3,]), n_zero = unlist(x_fit[4,]), monitor = unlist(x_fit[2,]), method = "MLE", distr = distr, ref_years = ref_years)
@@ -126,7 +129,7 @@ sci_mle <- function(x_ts, resolution, distr, p0, warn, start.fun.fix, ref_years)
 #' @param window Fill in
 #' @return An Lmoment fit.
 #' @export
-sci_mle_j <- function(j, x_ts, distr, x_res, p0, warn = TRUE, start.fun.fix = FALSE){
+sci_mle_j <- function(j, x_ts, distr, x_res, p0, warn = TRUE, start.fun = start.fun, start.fun.fix = FALSE){
 
   ### Extract the given day or month
   if(x_res == "daily") {x_j <- x_ts %>% filter(jdate == j)}

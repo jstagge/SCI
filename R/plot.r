@@ -1,7 +1,7 @@
 #' Plotting function for spi_ts class
 #'
 #' @param x Fill in
-#' @param window Fill in 
+#' @param window Fill in
 #' @return An Lmoment fit.
 #' @method plot sci_ts
 #' @export
@@ -185,7 +185,7 @@ plot.sci_ts <- function(x, plot_type = "ts"){
 #' Plotting function for spi_fit class
 #'
 #' @param x Fill in
-#' @param window Fill in 
+#' @param window Fill in
 #' @return An Lmoment fit.
 #' @method plot sci_fit
 #' @export
@@ -213,7 +213,7 @@ plot.sci_fit <- function(x, plot_type = "parameter"){
 #' Parameter plot
 #'
 #' @param x Fill in
-#' @param window Fill in 
+#' @param window Fill in
 #' @return An Lmoment fit.
 #' @export
 param_plot <- function(x){
@@ -299,7 +299,7 @@ return(p)
 #' Density plot
 #'
 #' @param x Fill in
-#' @param window Fill in 
+#' @param window Fill in
 #' @return An Lmoment fit.
 #' @export
 dens_plot <- function(x){
@@ -322,4 +322,100 @@ dens_plot <- function(x){
   param_names <- rownames(estimate_mat)
 
 
+}
+
+
+
+
+
+
+
+
+#' Plotting function for spi_fit class
+#'
+#' @param x Fill in
+#' @param window Fill in
+#' @return An Lmoment fit.
+#' @method plot sci_fit
+#' @export
+plot.sci_gof <- function(x){
+  require(tidyverse)
+  require(zoo)
+
+  gof_df <- x$gof
+
+
+  if(dim(x$gof)[1] == 365){
+    plot_indices <- gof_df %>%
+      dplyr::select(jdate, aic, bic, sw_stat, cvm, ad) %>%
+      pivot_longer(-jdate)
+
+    ### Extract just the rejected days
+    sw_rejected <- gof_df %>%
+      filter(sw_p <= 0.05) %>%
+      dplyr::select(jdate, sw_stat) %>%
+      pivot_longer(-jdate)
+
+    cvm_rejected <- gof_df %>%
+        filter(cvmtest == "rejected") %>%
+        dplyr::select(jdate, cvm) %>%
+        pivot_longer(-jdate)
+
+    ad_rejected <- gof_df %>%
+      filter(adtest == "rejected") %>%
+      dplyr::select(jdate, ad) %>%
+      pivot_longer(-jdate)
+  } else if(dim(x$gof)[1] == 12){
+    plot_indices <- gof_df %>%
+      dplyr::select(month, aic, bic, sw_stat, cvm, ad) %>%
+      pivot_longer(-month) %>%
+
+    ### Extract just the rejected days
+    sw_rejected <- gof_df %>%
+      filter(sw_p <= 0.05) %>%
+      dplyr::select(month, sw_stat) %>%
+      pivot_longer(-month)
+
+    cvm_rejected <- gof_df %>%
+        filter(cvmtest == "rejected") %>%
+        dplyr::select(month, cvm) %>%
+        pivot_longer(-month)
+
+    ad_rejected <- gof_df %>%
+      filter(adtest == "rejected") %>%
+      dplyr::select(month, ad) %>%
+      pivot_longer(-month)
+  }
+
+  plot_indices <- plot_indices %>%
+    mutate(name = factor(name, levels = c("aic", "bic", "sw_stat", "cvm", "ad"), labels = c("AIC", "BIC", "Shapiro-Wilks", "Cramer-Von Mises", "Anderson-Darling")))
+
+  rejected_df <- sw_rejected %>%
+    bind_rows(cvm_rejected) %>%
+    bind_rows(ad_rejected)  %>%
+    mutate(name = factor(name, levels = c("aic", "bic", "sw_stat", "cvm", "ad"), labels = c("AIC", "BIC", "Shapiro-Wilks", "Cramer-Von Mises", "Anderson-Darling")))
+
+  if(dim(x$gof)[1] == 365){
+    month_breaks <- c(yday(seq(as.Date("1900-01-01"), as.Date("1900-12-31"), by = "1 month")), 365)
+    month_labels <- c(as.character(month(seq(as.Date("1900-01-01"), as.Date("1900-12-31"), by = "1 month"), label=TRUE)), "Jan")
+
+    p <-  ggplot(plot_indices, aes(x=jdate, y=value)) %>%
+      + geom_point() %>%
+      + geom_point(data = rejected_df, colour = "red") %>%
+      + facet_grid(name~., scales = "free_y") %>%
+      + scale_x_continuous(name = "Julian Day", breaks=month_breaks, expand = c(0,0), sec.axis = sec_axis(~ . + 0, breaks = month_breaks, labels = month_labels)) %>%
+      + theme_bw(12) %>%
+      + theme(panel.grid.minor = element_blank())
+  } else {
+    p <-  ggplot(plot_indices, aes(x=month, y=value)) %>%
+      + geom_point() %>%
+      + geom_point(data = rejected_df, colour = "red") %>%
+      + facet_grid(name~., scales = "free_y") %>%
+      + scale_x_continuous(name = "Month", breaks=seq(1,12), expand = c(0,0), sec.axis = sec_axis(~ . + 0, breaks = seq(1,12), labels = month_labels)) %>%  
+      + theme_bw(12) %>%
+      + theme(panel.grid.minor = element_blank())
+  }
+
+
+  return(p)
 }
