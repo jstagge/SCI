@@ -1,7 +1,7 @@
 #' Fit SCI
 #'
 #' @param x Fill in
-#' @param window Fill in 
+#' @param window Fill in
 #' @return An Lmoment fit.
 #' @export
 fitSCI <- function(x,
@@ -25,7 +25,7 @@ fitSCI <- function(x,
     ##############################################
     ### Apply rolling mean
     ##############################################
-    x <- rollmean_calc(example_ts, window = window, max_na_prop = max_na_prop, p0 = p0)
+    x <- rollmean_calc(x, window = window, max_na_prop = max_na_prop, p0 = p0)
 
     x_df <- x$df
     x_ts <- x$ts
@@ -96,7 +96,7 @@ fitSCI <- function(x,
 #' Wrapper for MLE fit
 #'
 #' @param x Fill in
-#' @param window Fill in 
+#' @param window Fill in
 #' @return An Lmoment fit.
 #' @export
 sci_mle <- function(x_ts, resolution, distr, p0, warn, start.fun.fix, ref_years){
@@ -123,7 +123,7 @@ sci_mle <- function(x_ts, resolution, distr, p0, warn, start.fun.fix, ref_years)
 #' MLE fit for a single day or month j
 #'
 #' @param x Fill in
-#' @param window Fill in 
+#' @param window Fill in
 #' @return An Lmoment fit.
 #' @export
 sci_mle_j <- function(j, x_ts, distr, x_res, p0, warn = TRUE, start.fun.fix = FALSE){
@@ -239,4 +239,3 @@ sci_mle_j <- function(j, x_ts, distr, x_res, p0, warn = TRUE, start.fun.fix = FA
     return(fit_result)
 
 }
-
