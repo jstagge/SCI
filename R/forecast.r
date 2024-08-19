@@ -1,6 +1,3 @@
-
-
-
 #' Calculate lagged correlation of SCI object
 #'
 #' @param x Fill in

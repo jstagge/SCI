@@ -41,7 +41,7 @@ lag_corr <- function(x, lag_list = seq(0,365*2), method = "pearson") {
 #' @return An Lmoment fit.
 #' @export
 theor_sci_corr <- function(n_years, resolution, method = "pearson", n_rep = 100, window, lag_list = seq(0,365*2), ci = 0.95){
-  require(plyr)
+  #require(plyr)
 
   start_date <- as.Date("1900-01-01")
 

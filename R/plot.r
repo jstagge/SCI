@@ -376,7 +376,7 @@ dens_calc <- function(x){
 #' @return An Lmoment fit.
 #' @export
 dens_plot <- function(x, ...){
-  UseMethod("cum_plot")
+  UseMethod("dens_plot")
 }
 
 #' @rdname dens_plot
@@ -447,7 +447,7 @@ cum_plot.sci_fit <- function(x){
 #' @return An Lmoment fit.
 #' @export
 qq_plot <- function(x, ...){
-  UseMethod("cum_plot")
+  UseMethod("qq_plot")
 }
 
 #' @rdname qq_plot
