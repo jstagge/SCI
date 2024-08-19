@@ -4,7 +4,7 @@
 \alias{plot.sci_gof}
 \title{Plotting function for spi_fit class}
 \usage{
-\method{plot}{sci_fit}(x)
+\method{plot}{sci_gof}(x)
 }
 \arguments{
 \item{x}{Fill in}
