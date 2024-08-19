@@ -31,7 +31,7 @@ create_day_seq <- function(n_years, start_date, leap_days = TRUE){
 #' @param window Fill in
 #' @return An Lmoment fit.
 #' @export
-sim_sci <- function(date_seq, accum_period){
+sim_sci <- function(date_seq, window){
   ###
   require(tidyverse)
   require(lubridate)
@@ -46,15 +46,15 @@ sim_sci <- function(date_seq, accum_period){
 
   ### Use a 92 day moving average MA(91) with innovations of sqrt(92)/n_roll, which produces N(0,1)
   ### Technically, the moving average would be on precip, not sci, but this is a very close approximation
-  innov_c <- rnorm(n_period, 0, sqrt(accum_period))
+  innov_c <- rnorm(n_period, 0, sqrt(window))
 
   ### Generate sci series using an MA(91) model with coef of 1. Need to remove the first 91 values
-  sci <- arima.sim(list(order = c(0,0,(accum_period - 1)), ma = rep(1,(accum_period -1))), n = n_period, innov=innov_c/accum_period)
-  sci[seq(1,(accum_period-1))] <- NA
+  sci <- arima.sim(list(order = c(0,0,(window - 1)), ma = rep(1,(window -1))), n = n_period, innov=innov_c/window)
+  sci[seq(1,(window-1))] <- NA
 
   ### Add back to the dataframe
   sci_df <- sci_df %>%
-      mutate(innov = innov_c/accum_period) %>%
+      mutate(innov = innov_c/window) %>%
 	    mutate(sci = c(sci)) %>%
       select(date, year, month, day, jdate, innov, sci)
 

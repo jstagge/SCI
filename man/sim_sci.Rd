@@ -4,12 +4,12 @@
 \alias{sim_sci}
 \title{Calculate lagged correlation of SCI object}
 \usage{
-sim_sci(date_seq, accum_period)
+sim_sci(date_seq, window)
 }
 \arguments{
-\item{x}{Fill in}
-
 \item{window}{Fill in}
+
+\item{x}{Fill in}
 }
 \value{
 An Lmoment fit.

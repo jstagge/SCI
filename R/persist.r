@@ -56,7 +56,7 @@ theor_sci_corr <- function(n_years, resolution, method = "pearson", n_rep = 100,
 
   ### Function to replicate simulating and taking the lagged correlation
   replicate_func <- function(){
-    sci_df <- sim_sci(x = date_seq, window = window)
+    sci_df <- sim_sci(date_seq = date_seq, window = window)
     sci_df <- list(df = sci_df, resolution = resolution, window = window, stage = "sci")
     class(sci_df) <- "sci_ts"
 
