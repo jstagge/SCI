@@ -2,8 +2,8 @@
 #'
 #' @param x A sci_ts object.
 #' @param window Time window for the moving average. In days or months, depending on the resolution of the x time series.
-#' @param p0 Whether to allow for zeroes. TRUE/FALSE. Useful for the SPI, where precipitation can be zero. 
-#' @param max_na_prop Maximum proportion of NA values within the time window. Number from 0-1. Default is 10 percent (0.1) 
+#' @param p0 Whether to allow for zeroes. TRUE/FALSE. Useful for the SPI, where precipitation can be zero.
+#' @param max_na_prop Maximum proportion of NA values within the time window. Number from 0-1. Default is 10 percent (0.1)
 #' @return x The rolling mean of the original time series. An sci_ts object.
 #' @export
 dgenlog <- function(x, shape, scale, location) {
@@ -29,8 +29,8 @@ dgenlog <- function(x, shape, scale, location) {
 #'
 #' @param x A sci_ts object.
 #' @param window Time window for the moving average. In days or months, depending on the resolution of the x time series.
-#' @param p0 Whether to allow for zeroes. TRUE/FALSE. Useful for the SPI, where precipitation can be zero. 
-#' @param max_na_prop Maximum proportion of NA values within the time window. Number from 0-1. Default is 10 percent (0.1) 
+#' @param p0 Whether to allow for zeroes. TRUE/FALSE. Useful for the SPI, where precipitation can be zero.
+#' @param max_na_prop Maximum proportion of NA values within the time window. Number from 0-1. Default is 10 percent (0.1)
 #' @return x The rolling mean of the original time series. An sci_ts object.
 #' @export
 pgenlog <- function(q, shape, scale, location) {
@@ -42,7 +42,7 @@ pgenlog <- function(q, shape, scale, location) {
         y <- (q-e)/a
     } else {
         y <- -k^(-1)*log(1-(k*(q[q.correct]-e))/a)
-    } 
+    }
     cdf <- vector()
     cdf[q.correct] <- 1/(1+exp(-y))
     if(k >0) {
@@ -58,8 +58,8 @@ pgenlog <- function(q, shape, scale, location) {
 #'
 #' @param x A sci_ts object.
 #' @param window Time window for the moving average. In days or months, depending on the resolution of the x time series.
-#' @param p0 Whether to allow for zeroes. TRUE/FALSE. Useful for the SPI, where precipitation can be zero. 
-#' @param max_na_prop Maximum proportion of NA values within the time window. Number from 0-1. Default is 10 percent (0.1) 
+#' @param p0 Whether to allow for zeroes. TRUE/FALSE. Useful for the SPI, where precipitation can be zero.
+#' @param max_na_prop Maximum proportion of NA values within the time window. Number from 0-1. Default is 10 percent (0.1)
 #' @return x The rolling mean of the original time series. An sci_ts object.
 #' @export
 qgenlog <- function(p, shape, scale, location) {
@@ -82,8 +82,8 @@ qgenlog <- function(p, shape, scale, location) {
 #'
 #' @param x A sci_ts object.
 #' @param window Time window for the moving average. In days or months, depending on the resolution of the x time series.
-#' @param p0 Whether to allow for zeroes. TRUE/FALSE. Useful for the SPI, where precipitation can be zero. 
-#' @param max_na_prop Maximum proportion of NA values within the time window. Number from 0-1. Default is 10 percent (0.1) 
+#' @param p0 Whether to allow for zeroes. TRUE/FALSE. Useful for the SPI, where precipitation can be zero.
+#' @param max_na_prop Maximum proportion of NA values within the time window. Number from 0-1. Default is 10 percent (0.1)
 #' @return x The rolling mean of the original time series. An sci_ts object.
 #' @export
 dpe3 <- function(x, shape, scale, location) {
@@ -118,14 +118,14 @@ dpe3 <- function(x, shape, scale, location) {
 #'
 #' @param x A sci_ts object.
 #' @param window Time window for the moving average. In days or months, depending on the resolution of the x time series.
-#' @param p0 Whether to allow for zeroes. TRUE/FALSE. Useful for the SPI, where precipitation can be zero. 
-#' @param max_na_prop Maximum proportion of NA values within the time window. Number from 0-1. Default is 10 percent (0.1) 
+#' @param p0 Whether to allow for zeroes. TRUE/FALSE. Useful for the SPI, where precipitation can be zero.
+#' @param max_na_prop Maximum proportion of NA values within the time window. Number from 0-1. Default is 10 percent (0.1)
 #' @return x The rolling mean of the original time series. An sci_ts object.
 #' @export
 ppe3 <- function(q, shape, scale, location) {
     e <- location
     a <- scale
-    k <- shape 
+    k <- shape
     q.correct <- !is.na(q)
     if (k == 0 | 4/k^2 > 170) {
 	cdf.correct <- pnorm((q[q.correct] - e)/a)
@@ -154,8 +154,8 @@ ppe3 <- function(q, shape, scale, location) {
 #'
 #' @param x A sci_ts object.
 #' @param window Time window for the moving average. In days or months, depending on the resolution of the x time series.
-#' @param p0 Whether to allow for zeroes. TRUE/FALSE. Useful for the SPI, where precipitation can be zero. 
-#' @param max_na_prop Maximum proportion of NA values within the time window. Number from 0-1. Default is 10 percent (0.1) 
+#' @param p0 Whether to allow for zeroes. TRUE/FALSE. Useful for the SPI, where precipitation can be zero.
+#' @param max_na_prop Maximum proportion of NA values within the time window. Number from 0-1. Default is 10 percent (0.1)
 #' @return x The rolling mean of the original time series. An sci_ts object.
 #' @export
 qpe3 <- function(p, shape, scale, location) {
@@ -177,4 +177,3 @@ qpe3 <- function(p, shape, scale, location) {
     x[is.na(p)] <- NA
     return(x)
 }
-

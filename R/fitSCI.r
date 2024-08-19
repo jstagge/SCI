@@ -9,8 +9,6 @@ fitSCI <- function(x,
                              distr,
                              method=c("mle", "lmom", "spline", "ecdf"),
                              ref_years = c(-Inf, Inf),
-                             gof = TRUE,
-                             bimodal_test = FALSE,
                              p0,
                              max_na_prop = 0.1,
                              scaling=c("no","max","sd"),
@@ -18,6 +16,10 @@ fitSCI <- function(x,
                              start.fun.fix=FALSE,
                              warn = TRUE
   ){
+
+    ### For gev distribution
+    require(evd)
+
 
     if(sum(class(x) %in% "sci_ts") == 0){
       stop("Must be a sci_ts object")
@@ -54,13 +56,6 @@ fitSCI <- function(x,
      ### I got rid of catch for distribution starting fit. Build that into MLE fit
      ##############################################
 
-
-     ##############################################
-     ### Bimodal test
-     ##############################################
-     if(bimodal_test == TRUE){
-       bimodal_result <- bimodal_test(x_ts)
-     }
 
      ##############################################
      ### Choose fit based on method
@@ -132,8 +127,8 @@ sci_mle <- function(x_ts, resolution, distr, p0, warn, start.fun, start.fun.fix,
 sci_mle_j <- function(j, x_ts, distr, x_res, p0, warn = TRUE, start.fun = start.fun, start.fun.fix = FALSE){
 
   ### Extract the given day or month
-  if(x_res == "daily") {x_j <- x_ts %>% filter(jdate == j)}
-  if(x_res == "monthly") {x_j <- x_ts %>% filter(month == j)}
+  if(x_res == "daily") {x_j <- x_ts %>% dplyr::filter(jdate == j)}
+  if(x_res == "monthly") {x_j <- x_ts %>% dplyr::filter(month == j)}
 
   #mledist.par$data <- mledist.par$data[is.finite(mledist.par$data)]
 
@@ -171,14 +166,6 @@ sci_mle_j <- function(j, x_ts, distr, x_res, p0, warn = TRUE, start.fun = start.
       np0 <- sum(x_j==0)
       x_j <- x_j[x_j > 0]
     }
-
-      #if(p0.est>0){
-          #mledist.par$data <- mledist.par$data[mledist.par$data>0]
-          ## Catch that adds a single value close to zero if there are zeros in the
-          ## fitting period.  This forces the distribution to tend towards zero,
-          ## preventing a "gap" betwen 0 and data.
-        #  mledist.par$data <- c(mledist.par$data,0.01*min(mledist.par$data,na.rm=TRUE))
-      #}
 
     ### Try the start function
     start <- start.fun(x=x_j,distr=distr)

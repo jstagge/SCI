@@ -279,7 +279,8 @@ param_plot <- function(x){
       + facet_grid(parameter ~ ., scales = "free_y") %>%
       + scale_x_continuous(name = "Julian Day", breaks=month_breaks, expand = c(0,0), sec.axis = sec_axis(~ . + 0, breaks = month_breaks, labels = month_labels)) %>%
       + scale_y_continuous(name = "Parameter estimate") %>%
-      + theme_bw(12)
+      + theme_bw(12) %>%
+      + theme(panel.grid.minor = element_blank())
   } else if (x_res == "monthly"){
     p <- ggplot(plot_df, aes(x=month, y=estimate)) %>%
         + geom_ribbon(aes(ymin = ylower, ymax = yupper), fill = "grey50", alpha = 0.5) %>%
@@ -287,7 +288,8 @@ param_plot <- function(x){
         + facet_grid(parameter ~ ., scales = "free_y") %>%
         + scale_x_continuous(name = "Month", expand = c(0,0)) %>%
         + scale_y_continuous(name = "Parameter estimate") %>%
-        + theme_bw(12)
+        + theme_bw(12) %>%
+        + theme(panel.grid.minor = element_blank())
   }
 
 p
@@ -296,37 +298,162 @@ return(p)
 
 
 
-#' Density plot
+#' Density calculation
 #'
 #' @param x Fill in
 #' @param window Fill in
 #' @return An Lmoment fit.
 #' @export
-dens_plot <- function(x){
+dens_calc <- function(x){
   ### Find the class of the time series
   x_res <- x$roll_mean$resolution
-
-
-    hist_df <- data.frame(value = x$fit[[1]]$data)
-
-    value_range <- c(min(hist_df$value), max(hist_df$value))
-
-    ggplot(hist_df, aes(x=value)) %>%
-      + geom_histogram(aes(y = after_stat(density)), colour = "black", fill = "grey80", bins = 20) %>%
-      + geom_density(aes(y = after_stat(density)), bw = 20) %>%
-      + theme_bw(12)
-
+  distr <- x$distr
 
   ### Extract estimates
   estimate_mat <- sapply(x$fit, function(x){x$estimate})
   param_names <- rownames(estimate_mat)
+  ddistr <- match.fun(paste("d",distr,sep=""))
+  pdistr <- match.fun(paste("p",distr,sep=""))
+  qdistr <- match.fun(paste("q",distr,sep=""))
 
+  ### Monthly breaks in case you need them
+  if(x_res == "daily"){
+    date_breaks <- seq(as.Date("1900-02-01"), as.Date("1901-1-31"), by = "1 month") -1
+    date_labels <- as.character(format(date_breaks, "%b %d"))
+    date_breaks <- yday(date_breaks)
+  } else if (x_res == "monthly"){
+    date_breaks <- seq(1,12)
+    date_labels <- c(as.character(month(seq(as.Date("1900-01-01"), as.Date("1900-12-31"), by = "1 month"), label=TRUE)))
+  }
 
+  ### Loop through and calculate density
+  for(j in seq(1, length(date_breaks))){
+    date_j <- date_breaks[[j]]
+    label_j <- date_labels[[j]]
+
+    ### Extract histogram
+    hist_temp <- data.frame(value = x$fit[[date_j]]$data, label = label_j) %>%
+      mutate(ecdf = (rank(value))/(length(value) + 1)) %>%
+      mutate(theor =  do.call(qdistr,c(list(ecdf),estimate_mat[,date_j])))
+
+    ### Choose range to plot fitted distribution
+    value_range <- c(min(hist_temp$value), max(hist_temp$value))
+    x_buffer <- abs(diff(value_range)*0.25)
+    value_range <- c(value_range[[1]] - x_buffer, value_range[[2]] + x_buffer)
+    x_points <- seq(value_range[[1]], value_range[[2]], length.out = 100)
+
+    ### Calculate the density
+    fit_dens_temp <- do.call(ddistr,c(list(x_points),estimate_mat[,date_j]))
+    fit_cum_temp <- do.call(pdistr,c(list(x_points),estimate_mat[,date_j]))
+
+    fit_temp <- data.frame(value = x_points, dens = fit_dens_temp, cum = fit_cum_temp, label = label_j)# %>%
+    #  mutate(count = dens * n_hist * bw)
+
+    if(j == 1){
+      fit_dens <- fit_temp
+      hist_df <- hist_temp
+    } else {
+      fit_dens <- fit_dens %>%
+        bind_rows(fit_temp)
+      hist_df <- hist_df %>%
+        bind_rows(hist_temp)
+    }
+
+  }
+
+  hist_df$label <- factor(hist_df$label, levels = day_labels)
+  fit_dens$label <- factor(fit_dens$label, levels = day_labels)
+
+  return(list(hist_df = hist_df, fit_dens = fit_dens))
 }
 
 
 
+#' Density calculation
+#'
+#' @param x Fill in
+#' @param window Fill in
+#' @return An Lmoment fit.
+#' @export
+dens_plot.sci_fit <- function(x){
+  plot_list <- dens_calc(x)
+  hist_df <- plot_list$hist_df
+  fit_dens <- plot_list$fit_dens
 
+  hist_df$colour = "Observed"
+  fit_dens$colour = "Fit"
+
+  p <- ggplot(hist_df, aes(x=value)) %>%
+     + geom_histogram(aes(y = after_stat(density)),colour = NA, fill = "grey87", binwidth = bw, alpha = 1) %>%
+     + geom_density(aes(colour = colour)) %>%
+     + geom_line(data = fit_dens, aes(y=dens, colour = colour)) %>%
+     + scale_colour_manual(name = "", values = c("black", "red"), breaks = c("Observed", "Fit")) %>%
+     + scale_x_continuous(name = "Value") %>%
+     + scale_y_continuous(name = "Density") %>%
+     + facet_wrap(.~label) %>%
+     + theme_bw(12) %>%
+     + theme(panel.grid.minor = element_blank()) %>%
+     + theme(legend.position="bottom")
+
+  return(p)
+}
+
+#' Cumulative Plot
+#'
+#' @param x Fill in
+#' @param window Fill in
+#' @return An Lmoment fit.
+#' @export
+cum_plot.sci_fit <- function(x){
+  plot_list <- dens_calc(x)
+  hist_df <- plot_list$hist_df
+  fit_dens <- plot_list$fit_dens
+
+  hist_df$colour = "Observed"
+  fit_dens$colour = "Fit"
+
+  p <- ggplot(hist_df, aes(x=value)) %>%
+    + geom_point(aes(y=ecdf, colour = colour)) %>%
+    + geom_line(data = fit_dens, aes(y=cum, colour = colour)) %>%
+     + scale_colour_manual(name = "", values = c("black", "red"), breaks = c("Observed", "Fit")) %>%
+     + scale_x_continuous(name = "Value") %>%
+     + scale_y_continuous(name = "Cumulative Prob") %>%
+     + facet_wrap(.~label) %>%
+     + theme_bw(12) %>%
+     + theme(panel.grid.minor = element_blank()) %>%
+     + theme(legend.position="bottom")
+
+  return(p)
+}
+
+#' QQ Plot
+#'
+#' @param x Fill in
+#' @param window Fill in
+#' @return An Lmoment fit.
+#' @export
+qq_plot.sci_fit <- function(x){
+  plot_list <- dens_calc(x)
+  hist_df <- plot_list$hist_df
+  fit_dens <- plot_list$fit_dens
+
+  hist_df$colour = "Observed"
+  fit_dens$colour = "Fit"
+
+  p <- ggplot(hist_df, aes(x = theor, y=value)) %>%
+    + geom_abline(slope = 1, intercept = 0, colour = "grey75") %>%
+    + geom_point() %>%
+     + scale_colour_manual(name = "", values = c("black", "red"), breaks = c("Observed", "Fit")) %>%
+     + scale_x_continuous(name = "Theoretical") %>%
+     + scale_y_continuous(name = "Sample") %>%
+     + facet_wrap(.~label, scales = "free") %>%
+    # + coord_fixed() %>%
+     + theme_bw(12) %>%
+     + theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) %>%
+     + theme(legend.position="bottom")
+
+  return(p)
+}
 
 
 
@@ -347,13 +474,13 @@ plot.sci_gof <- function(x){
 
   if(dim(x$gof)[1] == 365){
     plot_indices <- gof_df %>%
-      dplyr::select(jdate, aic, bic, sw_stat, cvm, ad) %>%
+      dplyr::select(jdate, aic, sw_p, cvm, ad) %>%
       pivot_longer(-jdate)
 
     ### Extract just the rejected days
     sw_rejected <- gof_df %>%
       filter(sw_p <= 0.05) %>%
-      dplyr::select(jdate, sw_stat) %>%
+      dplyr::select(jdate, sw_p) %>%
       pivot_longer(-jdate)
 
     cvm_rejected <- gof_df %>%
@@ -367,13 +494,13 @@ plot.sci_gof <- function(x){
       pivot_longer(-jdate)
   } else if(dim(x$gof)[1] == 12){
     plot_indices <- gof_df %>%
-      dplyr::select(month, aic, bic, sw_stat, cvm, ad) %>%
+      dplyr::select(month, aic, sw_p, cvm, ad) %>%
       pivot_longer(-month) %>%
 
     ### Extract just the rejected days
     sw_rejected <- gof_df %>%
       filter(sw_p <= 0.05) %>%
-      dplyr::select(month, sw_stat) %>%
+      dplyr::select(month, sw_p) %>%
       pivot_longer(-month)
 
     cvm_rejected <- gof_df %>%
@@ -388,12 +515,12 @@ plot.sci_gof <- function(x){
   }
 
   plot_indices <- plot_indices %>%
-    mutate(name = factor(name, levels = c("aic", "bic", "sw_stat", "cvm", "ad"), labels = c("AIC", "BIC", "Shapiro-Wilks", "Cramer-Von Mises", "Anderson-Darling")))
+    mutate(name = factor(name, levels = c("aic",  "sw_p", "cvm", "ad"), labels = c("AIC", "Shapiro-Wilks p", "Cramer-Von Mises", "Anderson-Darling")))
 
   rejected_df <- sw_rejected %>%
     bind_rows(cvm_rejected) %>%
     bind_rows(ad_rejected)  %>%
-    mutate(name = factor(name, levels = c("aic", "bic", "sw_stat", "cvm", "ad"), labels = c("AIC", "BIC", "Shapiro-Wilks", "Cramer-Von Mises", "Anderson-Darling")))
+    mutate(name = factor(name, levels = c("aic", "sw_p", "cvm", "ad"), labels = c("AIC",  "Shapiro-Wilks p", "Cramer-Von Mises", "Anderson-Darling")))
 
   if(dim(x$gof)[1] == 365){
     month_breaks <- c(yday(seq(as.Date("1900-01-01"), as.Date("1900-12-31"), by = "1 month")), 365)
@@ -411,7 +538,7 @@ plot.sci_gof <- function(x){
       + geom_point() %>%
       + geom_point(data = rejected_df, colour = "red") %>%
       + facet_grid(name~., scales = "free_y") %>%
-      + scale_x_continuous(name = "Month", breaks=seq(1,12), expand = c(0,0), sec.axis = sec_axis(~ . + 0, breaks = seq(1,12), labels = month_labels)) %>%  
+      + scale_x_continuous(name = "Month", breaks=seq(1,12), expand = c(0,0), sec.axis = sec_axis(~ . + 0, breaks = seq(1,12), labels = month_labels)) %>%
       + theme_bw(12) %>%
       + theme(panel.grid.minor = element_blank())
   }
