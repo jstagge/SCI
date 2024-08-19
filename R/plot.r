@@ -4,7 +4,6 @@
 #' @param window Fill in
 #' @return An Lmoment fit.
 #' @method plot sci_ts
-#' @S3method
 #' @export
 plot.sci_ts <- function(x, plot_type = "ts"){
   require(tidyverse)
@@ -189,7 +188,6 @@ plot.sci_ts <- function(x, plot_type = "ts"){
 #' @param window Fill in
 #' @return An Lmoment fit.
 #' @method plot sci_fit
-#' @S3method
 #' @export
 plot.sci_fit <- function(x, plot_type = "parameter"){
   require(tidyverse)
@@ -376,8 +374,13 @@ dens_calc <- function(x){
 #' @param x Fill in
 #' @param window Fill in
 #' @return An Lmoment fit.
-#' @S3method
-#' @method
+#' @export
+dens_plot <- function(x, ...){
+  UseMethod("cum_plot")
+}
+
+#' @rdname dens_plot
+#' @method  dens_plot sci_fit
 #' @export
 dens_plot.sci_fit <- function(x){
   plot_list <- dens_calc(x)
@@ -407,8 +410,13 @@ dens_plot.sci_fit <- function(x){
 #' @param x Fill in
 #' @param window Fill in
 #' @return An Lmoment fit.
-#' @S3method
-#' @method
+#' @export
+cum_plot <- function(x, ...){
+  UseMethod("cum_plot")
+}
+
+#' @rdname cum_plot
+#' @method  cum_plot sci_fit
 #' @export
 cum_plot.sci_fit <- function(x){
   plot_list <- dens_calc(x)
@@ -437,8 +445,13 @@ cum_plot.sci_fit <- function(x){
 #' @param x Fill in
 #' @param window Fill in
 #' @return An Lmoment fit.
-#' @S3method
-#' @method
+#' @export
+qq_plot <- function(x, ...){
+  UseMethod("cum_plot")
+}
+
+#' @rdname qq_plot
+#' @method  qq_plot sci_fit
 #' @export
 qq_plot.sci_fit <- function(x){
   plot_list <- dens_calc(x)
@@ -471,8 +484,7 @@ qq_plot.sci_fit <- function(x){
 #' @param x Fill in
 #' @param window Fill in
 #' @return An Lmoment fit.
-#' @S3method
-#' @method
+#' @method  plot sci_gof
 #' @export
 plot.sci_gof <- function(x){
   require(tidyverse)
