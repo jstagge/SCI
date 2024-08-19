@@ -17,7 +17,6 @@
 #' @export
 
 rollmean_calc <- function(x, window, p0, max_na_prop = 0.1){
-  require(plyr)
   require(dplyr)
   require(tidyverse)
   require(zoo)
