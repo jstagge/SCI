@@ -1,6 +1,12 @@
 
 
-### Date helper
+
+#' Calculate lagged correlation of SCI object
+#'
+#' @param x Fill in
+#' @param window Fill in
+#' @return An Lmoment fit.
+#' @export
 create_day_seq <- function(n_years, start_date, leap_days = TRUE){
   require(lubridate)
 
@@ -22,7 +28,12 @@ create_day_seq <- function(n_years, start_date, leap_days = TRUE){
 }
 
 
-### Function to simulate SPI
+#' Calculate lagged correlation of SCI object
+#'
+#' @param x Fill in
+#' @param window Fill in
+#' @return An Lmoment fit.
+#' @export
 sim_spi <- function(date_seq, accum_period){
   ###
   require(tidyverse)

@@ -3,8 +3,8 @@
 #' @description Calculates a rolling mean for use in the SCI. Calls the pre-processing function automatically. No need to run pre-processing function. For an SCI without a moving window (sometimes useful for streamflow), use a window of 1.
 #' @param x A sci_ts object.
 #' @param window Time window for the moving average. In days or months, depending on the resolution of the x time series.
-#' @param p0 Whether to allow for zeroes. TRUE/FALSE. Useful for the SPI, where precipitation can be zero. 
-#' @param max_na_prop Maximum proportion of NA values within the time window. Number from 0-1. Default is 10 percent (0.1) 
+#' @param p0 Whether to allow for zeroes. TRUE/FALSE. Useful for the SPI, where precipitation can be zero.
+#' @param max_na_prop Maximum proportion of NA values within the time window. Number from 0-1. Default is 10 percent (0.1)
 #' @return x The rolling mean of the original time series. An sci_ts object.
 #' @seealso  sci_ts
 #' @examples
@@ -17,6 +17,8 @@
 #' @export
 
 rollmean_calc <- function(x, window, p0, max_na_prop = 0.1){
+  require(plyr)
+  require(dplyr)
   require(tidyverse)
   require(zoo)
 
