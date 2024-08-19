@@ -56,7 +56,7 @@ sim_sci <- function(date_seq, window){
   sci_df <- sci_df %>%
       mutate(innov = innov_c/window) %>%
 	    mutate(sci = c(sci)) %>%
-      select(date, year, month, day, jdate, innov, sci)
+      dplyr::select(date, year, month, day, jdate, innov, sci)
 
     ### Return result
     return(sci_df)

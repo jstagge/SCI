@@ -66,8 +66,18 @@ theor_sci_corr <- function(n_years, resolution, method = "pearson", n_rep = 100,
   }
 
   ### Run multiple replicates
-  theor_df <- plyr::rdply(n_rep, replicate_func)
-  theor_df <- theor_df %>% dplyr::rename(run = 1)
+  for(k in seq(1, n_rep)){
+    theor_temp <- replicate_func() %>%
+      mutate(run = k)
+    if(k == 1){
+      theor_df <- theor_temp
+    } else {
+      theor_df <- theor_df %>%
+        bind_rows(theor_temp)
+    }
+
+  }
+
 
   ### Determine the upper and lower confidence intervals
   lower_ci <- (1-ci)/2
