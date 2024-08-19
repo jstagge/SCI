@@ -31,34 +31,34 @@ create_day_seq <- function(n_years, start_date, leap_days = TRUE){
 #' @param window Fill in
 #' @return An Lmoment fit.
 #' @export
-sim_spi <- function(date_seq, accum_period){
+sim_sci <- function(date_seq, accum_period){
   ###
   require(tidyverse)
   require(lubridate)
 
   ### Create the dataframe object to hold
-  spi_df <- data.frame(date = date_seq) %>%
+  sci_df <- data.frame(date = date_seq) %>%
     mutate(jdate = yday(date)) %>%
   	mutate(month = month(date), day = day(date), year = year(date))
 
-  ### Simulate the SPI
-  n_period <- dim(spi_df)[1]
+  ### Simulate the sci
+  n_period <- dim(sci_df)[1]
 
   ### Use a 92 day moving average MA(91) with innovations of sqrt(92)/n_roll, which produces N(0,1)
-  ### Technically, the moving average would be on precip, not SPI, but this is a very close approximation
+  ### Technically, the moving average would be on precip, not sci, but this is a very close approximation
   innov_c <- rnorm(n_period, 0, sqrt(accum_period))
 
-  ### Generate SPI series using an MA(91) model with coef of 1. Need to remove the first 91 values
-  spi <- arima.sim(list(order = c(0,0,(accum_period - 1)), ma = rep(1,(accum_period -1))), n = n_period, innov=innov_c/accum_period)
-  spi[seq(1,(accum_period-1))] <- NA
+  ### Generate sci series using an MA(91) model with coef of 1. Need to remove the first 91 values
+  sci <- arima.sim(list(order = c(0,0,(accum_period - 1)), ma = rep(1,(accum_period -1))), n = n_period, innov=innov_c/accum_period)
+  sci[seq(1,(accum_period-1))] <- NA
 
   ### Add back to the dataframe
-  spi_df <- spi_df %>%
+  sci_df <- sci_df %>%
       mutate(innov = innov_c/accum_period) %>%
-	    mutate(spi = c(spi)) %>%
-      select(date, year, month, day, jdate, innov, spi)
+	    mutate(sci = c(sci)) %>%
+      select(date, year, month, day, jdate, innov, sci)
 
     ### Return result
-    return(spi_df)
+    return(sci_df)
 
 }
