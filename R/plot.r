@@ -361,8 +361,8 @@ dens_calc <- function(x){
 
   }
 
-  hist_df$label <- factor(hist_df$label, levels = day_labels)
-  fit_dens$label <- factor(fit_dens$label, levels = day_labels)
+  hist_df$label <- factor(hist_df$label, levels = date_labels)
+  fit_dens$label <- factor(fit_dens$label, levels = date_labels)
 
   return(list(hist_df = hist_df, fit_dens = fit_dens))
 }
