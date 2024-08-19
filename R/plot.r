@@ -390,8 +390,10 @@ dens_plot.sci_fit <- function(x){
   hist_df$colour = "Observed"
   fit_dens$colour = "Fit"
 
+  #binwidth = bw, 
+
   p <- ggplot(hist_df, aes(x=value)) %>%
-     + geom_histogram(aes(y = after_stat(density)),colour = NA, fill = "grey87", binwidth = bw, alpha = 1) %>%
+     + geom_histogram(aes(y = after_stat(density)),colour = NA, fill = "grey87", alpha = 1) %>%
      + geom_density(aes(colour = colour)) %>%
      + geom_line(data = fit_dens, aes(y=dens, colour = colour)) %>%
      + scale_colour_manual(name = "", values = c("black", "red"), breaks = c("Observed", "Fit")) %>%
